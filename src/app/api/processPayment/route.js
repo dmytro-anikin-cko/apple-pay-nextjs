@@ -3,16 +3,31 @@ import { NextResponse } from "next/server";
 export async function POST(request, response) {
   const { applePayToken } = await request.json();
 
-  console.error("ApplePayToken Received:", applePayToken)
+  console.error("ApplePayToken Received:", JSON.stringify(applePayToken, null, 2));
 
-  const {
-    version,
-    data,
-    signature,
-    header
-  } = applePayToken;
+  const { version, data, signature, header } = applePayToken;
 
   try {
+    console.error("SECRET_KEY Exists:", Boolean(process.env.SECRET_KEY));
+
+    // Construct the token_data payload
+    const tokenDataPayload = {
+      type: "applepay",
+      token_data: {
+        version,
+        data,
+        signature,
+        header: {
+          ephemeralPublicKey: header.ephemeralPublicKey,
+          publicKeyHash: header.publicKeyHash,
+          transactionId: header.transactionId,
+        },
+      },
+    };
+
+    // Log the payload
+    console.error("Constructed Token Data Payload:", JSON.stringify(tokenDataPayload, null, 2));
+
     // Step 1: Generate the CKO token from the Apple Pay token
     const tokenResponse = await fetch(
       "https://api.sandbox.checkout.com/tokens",
@@ -22,31 +37,30 @@ export async function POST(request, response) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${process.env.SECRET_KEY}`, // Replace with your Checkout.com secret key
         },
-        body: JSON.stringify({
-          type: "applepay",
-          token_data: {
-            version: version,
-            data: data,
-            signature: signature,
-            header: {
-              ephemeralPublicKey: header.ephemeralPublicKey,
-              publicKeyHash: header.publicKeyHash,
-              transactionId: header.transactionId
-            }
-          }
-        }),
+        body: JSON.stringify(tokenDataPayload),
       }
     );
 
-    const tokenData = await tokenResponse.json();
+    // Log the raw response
+    const tokenResponseText = await tokenResponse.text();
+    console.error("Raw Token Response:", tokenResponseText);
+
+    // Attempt to parse JSON
+    let tokenData;
+    try {
+      tokenData = JSON.parse(tokenResponseText);
+    } catch (error) {
+      console.error("Error parsing token response:", error.message);
+      return NextResponse.json({ error: "Invalid token response format" }, { status: 500 });
+    }
 
     if (!tokenResponse.ok) {
-        return NextResponse.json({ success: false, error: tokenData }, { status: 400 });
+      console.error("Token Request Failed:", tokenData);
+      return NextResponse.json({ success: false, error: tokenData }, { status: 400 });
     }
 
     const ckoToken = tokenData.token;
-
-    console.error("ckoToken", ckoToken)
+    console.error("CKO Token:", ckoToken);
 
     // Step 2: Use the CKO token to create a payment
     const paymentResponse = await fetch(
