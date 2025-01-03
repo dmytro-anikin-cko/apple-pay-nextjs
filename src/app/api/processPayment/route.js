@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 export async function POST(request, response) {
   const { applePayToken } = await request.json();
 
+  console.error("ApplePayToken Received:", applePayToken)
+
   try {
     // Step 1: Generate the CKO token from the Apple Pay token
     const tokenResponse = await fetch(
