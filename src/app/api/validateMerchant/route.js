@@ -26,8 +26,16 @@ export async function POST(request, response) {
     }
 
     // Decode Base64 strings using js-base64
-    const certificate = Base64.decode(certificateEnv).replace(/\n/g, "");
-    const privateKey = Base64.decode(keyEnv).replace(/\n/g, "");
+    // const certificate = Base64.decode(certificateEnv).replace(/\n/g, "");
+    // const privateKey = Base64.decode(keyEnv).replace(/\n/g, "");
+
+    function decodeBase64(base64String) {
+      const binaryData = Buffer.from(base64String, "base64"); // For Node.js
+      return new TextDecoder("utf-8").decode(binaryData);
+    }
+    
+    const certificate = decodeBase64(certificateEnv);
+    const privateKey = decodeBase64(keyEnv);
 
     // Log a snippet of the decoded strings for debugging
     console.error(
