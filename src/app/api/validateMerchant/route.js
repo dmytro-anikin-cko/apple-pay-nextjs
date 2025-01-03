@@ -5,10 +5,17 @@ export async function POST(request, response) {
   const { validationURL } = request.body;
 
   try {
-    console.error("Certificate Exists:", Boolean(process.env.APPLE_PAY_CERTIFICATE));
+    console.error(
+      "Certificate Exists:",
+      Boolean(process.env.APPLE_PAY_CERTIFICATE)
+    );
     console.error("Key Exists:", Boolean(process.env.APPLE_PAY_KEY));
+ 
     const certificateEnv = process.env.APPLE_PAY_CERTIFICATE;
     const keyEnv = process.env.APPLE_PAY_KEY;
+
+    console.error("Decoded CertificateEnv (Raw):", certificateEnv);
+    console.error("Decoded KeyEnv (Raw):", keyEnv);
 
     if (!certificateEnv || !keyEnv) {
       throw new Error(
@@ -16,8 +23,13 @@ export async function POST(request, response) {
       );
     }
 
-    const certificate = Buffer.from(certificateEnv, "base64").toString("utf8");
-    const privateKey = Buffer.from(keyEnv, "base64").toString("utf8");
+    function decodeBase64(base64String) {
+      const binaryData = Buffer.from(base64String, "base64"); // For Node.js
+      return new TextDecoder("utf-8").decode(binaryData);
+    }
+    
+    const certificate = decodeBase64(certificateEnv);
+    const privateKey = decodeBase64(keyEnv);
 
     const agent = new https.Agent({
       cert: certificate,
