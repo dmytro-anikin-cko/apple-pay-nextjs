@@ -53,17 +53,14 @@ export async function POST(request, response) {
         cert: certificate,
         key: privateKey,
       });
-      console.error("HTTPS Agent created successfully");
+      console.error("HTTPS Agent created successfully", agent);
     } catch (error) {
       console.error("Error creating HTTPS Agent:", error.message);
       throw error;
     }
 
     console.error("Validation URL:", validationURL);
-    console.error("Agent Configuration:", {
-      cert: certificate.slice(0, 50), // Log only a portion of the cert for safety
-      key: privateKey.slice(0, 50),
-    });
+
 
     const response = await fetch(validationURL, {
       method: "POST",
