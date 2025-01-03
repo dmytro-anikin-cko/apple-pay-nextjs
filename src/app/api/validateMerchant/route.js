@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import https from "https";
 import { Base64 } from "js-base64";
 
-export async function POST(request, response) {
+export async function POST(request) {
   const { validationURL } = await request.json();
 
   if (!validationURL || typeof validationURL !== "string") {
@@ -10,73 +10,77 @@ export async function POST(request, response) {
   }
 
   try {
-    console.error(
-      "Certificate Exists:",
-      Boolean(process.env.APPLE_PAY_CERTIFICATE)
-    );
+    console.error("Certificate Exists:", Boolean(process.env.APPLE_PAY_CERTIFICATE));
     console.error("Key Exists:", Boolean(process.env.APPLE_PAY_KEY));
 
     const certificateEnv = process.env.APPLE_PAY_CERTIFICATE;
     const keyEnv = process.env.APPLE_PAY_KEY;
 
     if (!certificateEnv || !keyEnv) {
-      throw new Error(
-        "Missing Apple Pay certificate or key in environment variables"
-      );
+      throw new Error("Missing Apple Pay certificate or key in environment variables");
     }
 
     // Decode Base64 strings using js-base64
-    // const certificate = Base64.decode(certificateEnv).replace(/\n/g, "");
-    // const privateKey = Base64.decode(keyEnv).replace(/\n/g, "");
-
     function decodeBase64(base64String) {
       const binaryData = Buffer.from(base64String, "base64"); // For Node.js
       return new TextDecoder("utf-8").decode(binaryData);
     }
-    
+
     const certificate = decodeBase64(certificateEnv);
     const privateKey = decodeBase64(keyEnv);
 
-    // Log a snippet of the decoded strings for debugging
-    console.error(
-      "Decoded Certificate (First 100 Chars):",
-      certificate
-    );
-    console.error(
-      "Decoded Private Key (First 100 Chars):",
-      privateKey
-    );
+    console.error("Decoded Certificate:", certificate);
+    console.error("Decoded Private Key:", privateKey);
 
-    let agent;
-    try {
-      agent = new https.Agent({
-        cert: certificate,
-        key: privateKey,
-      });
-      console.error("HTTPS Agent created successfully", agent);
-    } catch (error) {
-      console.error("Error creating HTTPS Agent:", error.message);
-      throw error;
-    }
+    const agent = new https.Agent({
+      cert: certificate,
+      key: privateKey,
+    });
 
-    console.error("Validation URL:", validationURL);
+    const postData = JSON.stringify({
+      merchantIdentifier: "merchant.app.vercel.apple-pay-nextjs.sandbox",
+      domainName: "apple-pay-nextjs.vercel.app",
+      displayName: "merchant id for test environment",
+    });
 
-
-    const response = await fetch(validationURL, {
+    const options = {
+      hostname: new URL(validationURL).hostname,
+      path: new URL(validationURL).pathname,
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Content-Length": Buffer.byteLength(postData),
       },
-      body: JSON.stringify({
-        merchantIdentifier: "merchant.app.vercel.apple-pay-nextjs.sandbox",
-        domainName: "apple-pay-nextjs.vercel.app",
-        displayName: "merchant id for test environment",
-      }),
-      agent,
-    });
+      agent, // Attach the HTTPS agent with cert and key
+    };
 
-    const merchantSession = await response.json();
-    return NextResponse.json(merchantSession, { status: 200 });
+    console.error("HTTPS Request Options:", options);
+
+    return new Promise((resolve, reject) => {
+      const req = https.request(options, (res) => {
+        let data = "";
+        res.on("data", (chunk) => {
+          data += chunk;
+        });
+        res.on("end", () => {
+          try {
+            console.error("HTTPS Response Data:", data);
+            const merchantSession = JSON.parse(data);
+            resolve(NextResponse.json(merchantSession, { status: res.statusCode }));
+          } catch (error) {
+            reject(new Error(`Failed to parse response: ${error.message}`));
+          }
+        });
+      });
+
+      req.on("error", (error) => {
+        console.error("HTTPS Request Error:", error);
+        reject(new Error(`Request failed: ${error.message}`));
+      });
+
+      req.write(postData); // Send the POST data
+      req.end(); // End the request
+    });
   } catch (error) {
     console.error("Merchant validation failed:", error);
     return NextResponse.json(
