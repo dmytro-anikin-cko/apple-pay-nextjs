@@ -5,11 +5,8 @@ export async function POST(request, response) {
   const { validationURL } = request.body;
 
   try {
-    console.log(
-      "Certificate Exists:",
-      Boolean(process.env.APPLE_PAY_CERTIFICATE)
-    );
-    console.log("Key Exists:", Boolean(process.env.APPLE_PAY_KEY));
+    console.error("Certificate Exists:", Boolean(process.env.APPLE_PAY_CERTIFICATE));
+    console.error("Key Exists:", Boolean(process.env.APPLE_PAY_KEY));
     const certificateEnv = process.env.APPLE_PAY_CERTIFICATE;
     const keyEnv = process.env.APPLE_PAY_KEY;
 
