@@ -24,8 +24,13 @@ export async function POST(request, response) {
     }
 
     function decodeBase64(base64String) {
-      const binaryData = Buffer.from(base64String, "base64"); // For Node.js
-      return new TextDecoder("utf-8").decode(binaryData);
+      if (typeof window !== "undefined" && window.atob) {
+        // Browser
+        return atob(base64String);
+      } else {
+        // Node.js
+        return Buffer.from(base64String, "base64").toString("utf8");
+      }
     }
     
     const certificate = decodeBase64(certificateEnv);
