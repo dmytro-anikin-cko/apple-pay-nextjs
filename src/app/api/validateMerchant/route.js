@@ -1,17 +1,12 @@
 import { NextResponse } from "next/server";
 import https from "https";
-import fs from "fs";
-import path from "path";
 
 export async function POST(request, response) {
   const { validationURL } = request.body;
 
   try {
-    const certPath = path.resolve(process.cwd(), "certs/certificate_sandbox.pem");
-    const keyPath = path.resolve(process.cwd(), "certs/certificate_sandbox.key");
-    
-    const certificate = fs.readFileSync(certPath, "utf8");
-    const privateKey = fs.readFileSync(keyPath, "utf8");
+    const certificate = Buffer.from(process.env.APPLE_PAY_CERTIFICATE, "base64").toString("utf8");
+    const privateKey = Buffer.from(process.env.APPLE_PAY_KEY, "base64").toString("utf8");
     
 
     const agent = new https.Agent({
