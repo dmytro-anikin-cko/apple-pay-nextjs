@@ -5,6 +5,13 @@ export async function POST(request, response) {
 
   console.error("ApplePayToken Received:", applePayToken)
 
+  const {
+    version,
+    data,
+    signature,
+    header
+  } = applePayToken;
+
   try {
     // Step 1: Generate the CKO token from the Apple Pay token
     const tokenResponse = await fetch(
@@ -17,7 +24,16 @@ export async function POST(request, response) {
         },
         body: JSON.stringify({
           type: "applepay",
-          token_data: applePayToken,
+          token_data: {
+            version: version,
+            data: data,
+            signature: signature,
+            header: {
+              ephemeralPublicKey: header.ephemeralPublicKey,
+              publicKeyHash: header.publicKeyHash,
+              transactionId: header.transactionId
+            }
+          }
         }),
       }
     );
@@ -29,6 +45,8 @@ export async function POST(request, response) {
     }
 
     const ckoToken = tokenData.token;
+
+    console.error("ckoToken", ckoToken)
 
     // Step 2: Use the CKO token to create a payment
     const paymentResponse = await fetch(
@@ -44,8 +62,8 @@ export async function POST(request, response) {
             type: "token",
             token: ckoToken,
           },
-          amount: 1000, // Amount in the smallest currency unit (e.g., cents for USD)
-          currency: "USD", // Adjust currency as needed
+          amount: 100, // Amount in the smallest currency unit (e.g., cents for USD)
+          currency: "EUR", // Adjust currency as needed
           reference: "test-transaction",
           processing_channel_id: process.env.PROCESSING_CHANNEL_ID
         }),

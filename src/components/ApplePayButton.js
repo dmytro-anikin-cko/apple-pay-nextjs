@@ -9,8 +9,8 @@ const ApplePayButton = () => {
 
     // Define the payment request
     const paymentRequest = {
-      countryCode: 'US',
-      currencyCode: 'USD',
+      countryCode: 'ES',
+      currencyCode: 'EUR',
       supportedNetworks: ['visa', 'masterCard', 'amex'],
       merchantCapabilities: ['supports3DS'],
       total: {
