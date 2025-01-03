@@ -40,11 +40,11 @@ export async function POST(request, response) {
     // Log a snippet of the decoded strings for debugging
     console.error(
       "Decoded Certificate (First 100 Chars):",
-      certificate.slice(0, 100)
+      certificate
     );
     console.error(
       "Decoded Private Key (First 100 Chars):",
-      privateKey.slice(0, 100)
+      privateKey
     );
 
     let agent;
