@@ -26,8 +26,8 @@ export async function POST(request, response) {
     }
 
     // Decode Base64 strings using js-base64
-    const certificate = Base64.decode(certificateEnv);
-    const privateKey = Base64.decode(keyEnv);
+    const certificate = Base64.decode(certificateEnv).replace(/\n/g, "");
+    const privateKey = Base64.decode(keyEnv).replace(/\n/g, "");
 
     // Log a snippet of the decoded strings for debugging
     console.error(
