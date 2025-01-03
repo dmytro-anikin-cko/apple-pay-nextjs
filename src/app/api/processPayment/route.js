@@ -8,7 +8,7 @@ export async function POST(request, response) {
   const { version, data, signature, header } = applePayToken;
 
   try {
-    console.error("SECRET_KEY Exists:", Boolean(process.env.SECRET_KEY));
+    console.error("PUBLIC_KEY Exists:", Boolean(process.env.PUBLIC_KEY));
 
     // Construct the token_data payload
     const tokenDataPayload = {
@@ -35,7 +35,7 @@ export async function POST(request, response) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.SECRET_KEY}`, // Replace with your Checkout.com secret key
+          Authorization: `Bearer ${process.env.PUBLIC_KEY}`, // Replace with your Checkout.com secret key
         },
         body: JSON.stringify(tokenDataPayload),
       }
