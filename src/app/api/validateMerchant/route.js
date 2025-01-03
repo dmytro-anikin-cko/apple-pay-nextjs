@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import https from "https";
+import { Base64 } from "js-base64";
 
 export async function POST(request, response) {
   const { validationURL } = request.body;
@@ -14,8 +15,6 @@ export async function POST(request, response) {
     const certificateEnv = process.env.APPLE_PAY_CERTIFICATE;
     const keyEnv = process.env.APPLE_PAY_KEY;
 
-    console.error("Decoded CertificateEnv (Raw):", certificateEnv);
-    console.error("Decoded KeyEnv (Raw):", keyEnv);
 
     if (!certificateEnv || !keyEnv) {
       throw new Error(
@@ -23,18 +22,13 @@ export async function POST(request, response) {
       );
     }
 
-    function decodeBase64(base64String) {
-      if (typeof window !== "undefined" && window.atob) {
-        // Browser
-        return atob(base64String);
-      } else {
-        // Node.js
-        return Buffer.from(base64String, "base64").toString("utf8");
-      }
-    }
-    
-    const certificate = decodeBase64(certificateEnv);
-    const privateKey = decodeBase64(keyEnv);
+    // Decode Base64 strings using js-base64
+    const certificate = Base64.decode(certificateEnv);
+    const privateKey = Base64.decode(keyEnv);
+
+    // Log a snippet of the decoded strings for debugging
+    console.error("Decoded Certificate (First 100 Chars):", certificate.slice(0, 100));
+    console.error("Decoded Private Key (First 100 Chars):", privateKey.slice(0, 100));
 
     const agent = new https.Agent({
       cert: certificate,
