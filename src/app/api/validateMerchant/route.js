@@ -3,7 +3,7 @@ import https from "https";
 import { Base64 } from "js-base64";
 
 export async function POST(request, response) {
-  const { validationURL } = request.body;
+  const { validationURL } = await request.json();
 
   if (!validationURL || typeof validationURL !== "string") {
     throw new Error("Invalid or missing validationURL");
@@ -75,7 +75,7 @@ export async function POST(request, response) {
   } catch (error) {
     console.error("Merchant validation failed:", error);
     return NextResponse.json(
-      { error: "Failed to validate merchant" },
+      { error: error.message || "Failed to validate merchant" },
       { status: 500 }
     );
   }
