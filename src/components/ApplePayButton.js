@@ -26,6 +26,7 @@ const ApplePayButton = () => {
     }
 
     // Create an Apple Pay session
+    // NOTE: The ApplePaySession object is part of the Web Payments API
     const session = new ApplePaySession(3, paymentRequest);
 
     // Handle merchant validation
@@ -84,20 +85,8 @@ const ApplePayButton = () => {
   return (
     <button
       onClick={handleApplePay}
-      style={{
-        display: 'inline-block',
-        width: '200px',
-        height: '44px',
-        backgroundColor: 'black',
-        color: 'white',
-        textAlign: 'center',
-        lineHeight: '44px',
-        borderRadius: '8px',
-        fontSize: '16px',
-        cursor: 'pointer',
-      }}
+      className="apple-pay-button"
     >
-      Apple Pay
     </button>
   );
 };

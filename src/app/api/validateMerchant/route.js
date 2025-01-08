@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import https from "https";
-import { Base64 } from "js-base64";
 
 export async function POST(request) {
   const { validationURL } = await request.json();
@@ -10,8 +9,8 @@ export async function POST(request) {
   }
 
   try {
-    console.error("Certificate Exists:", Boolean(process.env.APPLE_PAY_CERTIFICATE));
-    console.error("Key Exists:", Boolean(process.env.APPLE_PAY_KEY));
+    // console.error("Certificate Exists:", Boolean(process.env.APPLE_PAY_CERTIFICATE));
+    // console.error("Key Exists:", Boolean(process.env.APPLE_PAY_KEY));
 
     const certificateEnv = process.env.APPLE_PAY_CERTIFICATE;
     const keyEnv = process.env.APPLE_PAY_KEY;
@@ -20,17 +19,17 @@ export async function POST(request) {
       throw new Error("Missing Apple Pay certificate or key in environment variables");
     }
 
-    // Decode Base64 strings using js-base64
+    // Decoding Certificates from Base64 to UTF-8
     function decodeBase64(base64String) {
-      const binaryData = Buffer.from(base64String, "base64"); // For Node.js
+      const binaryData = Buffer.from(base64String, "base64");
       return new TextDecoder("utf-8").decode(binaryData);
     }
 
     const certificate = decodeBase64(certificateEnv);
     const privateKey = decodeBase64(keyEnv);
 
-    console.error("Decoded Certificate:", certificate);
-    console.error("Decoded Private Key:", privateKey);
+    // console.error("Decoded Certificate:", certificate);
+    // console.error("Decoded Private Key:", privateKey);
 
     const agent = new https.Agent({
       cert: certificate,

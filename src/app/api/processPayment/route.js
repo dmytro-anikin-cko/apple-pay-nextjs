@@ -2,13 +2,10 @@ import { NextResponse } from "next/server";
 
 export async function POST(request, response) {
   const { applePayToken } = await request.json();
-
-  console.error("ApplePayToken Received:", JSON.stringify(applePayToken, null, 2));
-
   const { version, data, signature, header } = applePayToken;
 
   try {
-    console.error("PUBLIC_KEY Exists:", Boolean(process.env.PUBLIC_KEY));
+    // console.error("PUBLIC_KEY Exists:", Boolean(process.env.PUBLIC_KEY));
 
     // Construct the token_data payload
     const tokenDataPayload = {
@@ -26,7 +23,7 @@ export async function POST(request, response) {
     };
 
     // Log the payload
-    console.error("Constructed Token Data Payload:", JSON.stringify(tokenDataPayload, null, 2));
+    // console.error("Constructed Token Data Payload:", JSON.stringify(tokenDataPayload, null, 2));
 
     // Step 1: Generate the CKO token from the Apple Pay token
     const tokenResponse = await fetch(
@@ -43,7 +40,7 @@ export async function POST(request, response) {
 
     // Log the raw response
     const tokenResponseText = await tokenResponse.text();
-    console.error("Raw Token Response:", tokenResponseText);
+    // console.error("Raw Token Response:", tokenResponseText);
 
     // Attempt to parse JSON
     let tokenData;
