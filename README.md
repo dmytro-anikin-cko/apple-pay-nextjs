@@ -7,7 +7,6 @@ This repository demonstrates how to integrate Apple Pay with a Next.js applicati
 
 The project ensures secure communication with Apple Pay and Checkout.com using certificates and mutual TLS (mTLS).
 
----
 
 ## Features
 
@@ -18,7 +17,6 @@ The project ensures secure communication with Apple Pay and Checkout.com using c
   - Processing payments using Checkout.com's Payments API.
 - Secure handling of Apple Pay certificates and private keys.
 
----
 
 ## Setup and Configuration
 
@@ -35,7 +33,6 @@ The project ensures secure communication with Apple Pay and Checkout.com using c
   - `APPLE_PAY_CERTIFICATE`: Base64-encoded `.pem` certificate.
   - `APPLE_PAY_KEY`: Base64-encoded `.key` private key.
 
----
 
 ### Steps to Set Up
 
@@ -63,7 +60,16 @@ The project ensures secure communication with Apple Pay and Checkout.com using c
 6. **Deploy the Project**:
    - Use Vercel, Heroku, or another hosting service to deploy the Next.js app.
 
----
+
+## Why Encode `.pem` and `.key` Files as Base64?
+
+Initially, the plan was to store the `.pem` and `.key` files directly in a `certs` folder within the project. This approach was convenient for local development, as the files could be accessed directly using their file paths. However, this method posed several challenges in a production environment, especially when deploying to platforms like Vercel:
+
+1. **File System Access Restrictions**:
+   - Vercel’s serverless functions operate in a constrained environment where direct access to a specific folder, like `certs`, may not be guaranteed. This can lead to errors such as `ENOENT: no such file or directory`.
+
+2. **Ease of Deployment**:
+   - By encoding the `.pem` and `.key` files as Base64 strings and storing them in environment variables, we avoid file system dependencies. Environment variables are reliably accessible in both local and production environments.
 
 ## API Routes
 
@@ -103,7 +109,6 @@ const response = await fetch(validationURL, {
 - Ensure the `.pem` and `.key` files are properly Base64-encoded.
 - Decode and validate them before creating the HTTPS Agent.
 
----
 
 ## `/api/processPayment`
 
@@ -114,7 +119,6 @@ Processes Apple Pay payments by:
 - Generating a Checkout.com token from the Apple Pay token.
 - Using the Checkout.com token to complete the payment.
 
----
 
 ### How It Works
 
@@ -127,7 +131,6 @@ Processes Apple Pay payments by:
 
 - Sends the `ckoToken` to Checkout.com's `/payments` API to process the payment.
 
----
 
 ### Key Code
 
@@ -195,7 +198,6 @@ openssl x509 -in certificate.pem -text -noout
 - Log Base64-decoded certificates and private keys to confirm their content.
 - Test HTTPS agent creation and Apple Pay session requests in isolation.
 
----
 
 ## Acknowledgments
 
