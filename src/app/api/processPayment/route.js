@@ -76,6 +76,8 @@ export async function POST(request, response) {
           amount: 100, // Amount in the smallest currency unit (e.g., cents for USD)
           currency: "EUR", // Adjust currency as needed
           reference: "test-transaction",
+          payment_type: "Recurring",
+          merchant_initiated: false,
           processing_channel_id: process.env.PROCESSING_CHANNEL_ID
         }),
       }
