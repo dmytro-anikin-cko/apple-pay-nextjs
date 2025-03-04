@@ -1,8 +1,27 @@
 "use client";
+import { useEffect, useState } from "react";
+import Script from 'next/script';
 
 const ApplePayButton = () => {
+  const [isApplePayAvailable, setIsApplePayAvailable] = useState(false);
+  const [isSDKLoaded, setIsSDKLoaded] = useState(false);
+
+  useEffect(() => {
+    // Check if we're in the browser and if Apple Pay is supported
+    if (typeof window !== 'undefined') {
+      const applePayAvailable = window.ApplePaySession && ApplePaySession.canMakePayments();
+      setIsApplePayAvailable(applePayAvailable);
+    }
+  }, []);
+
+  // Handler for when the Apple Pay SDK script loads
+  const handleSDKLoad = () => {
+    setIsSDKLoaded(true);
+    console.log("Apple Pay SDK loaded successfully");
+  };
+
   const handleApplePay = async () => {
-    if (!window.ApplePaySession) {
+    if (typeof window === 'undefined' || !window.ApplePaySession) {
       alert('Apple Pay is not supported on this device or browser.');
       return;
     }
@@ -26,7 +45,6 @@ const ApplePayButton = () => {
     }
 
     // Create an Apple Pay session
-    // NOTE: The ApplePaySession object is part of the Web Payments API
     const session = new ApplePaySession(3, paymentRequest);
 
     // Handle merchant validation
@@ -82,12 +100,46 @@ const ApplePayButton = () => {
     session.begin();
   };
 
+  if (!isApplePayAvailable) {
+    return <div>Apple Pay is not supported on this device or browser.</div>;
+  }
+
   return (
-    <button
-      onClick={handleApplePay}
-      className="apple-pay-button"
-    >
-    </button>
+    <>
+      {/* Load the Apple Pay SDK directly in the component */}
+      <Script
+        id="apple-pay-sdk"
+        src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"
+        onLoad={handleSDKLoad}
+        strategy="afterInteractive"
+      />
+      
+      {/* Custom element approach */}
+      <div style={{ minHeight: '40px', minWidth: '140px' }}>
+        {isSDKLoaded && (
+          // @ts-ignore - TypeScript might not recognize this custom element
+          <apple-pay-button 
+            buttonstyle="black" 
+            type="buy" 
+            locale="en"
+            onClick={handleApplePay}
+          ></apple-pay-button>
+        )}
+      </div>
+      
+      {/* Fallback if element doesn't render properly */}
+      <style jsx global>{`
+        apple-pay-button {
+          display: inline-block;
+          -webkit-appearance: -apple-pay-button;
+          -apple-pay-button-type: buy;
+          -apple-pay-button-style: black;
+          height: 40px;
+          min-width: 140px;
+          cursor: pointer;
+        }
+      `}</style>
+    </>
   );
 };
 

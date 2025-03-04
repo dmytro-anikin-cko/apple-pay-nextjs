@@ -1,3 +1,5 @@
+import Script from "next/script";
+
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -19,6 +21,17 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <Script
+          id="apple-pay-sdk"
+          src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"
+          strategy="afterInteractive"
+          crossOrigin="anonymous"
+          // onError={(e) => {
+          //   console.error("Failed to load Apple Pay SDK:", e);
+          // }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
