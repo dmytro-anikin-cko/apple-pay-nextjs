@@ -19,6 +19,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <script
+          crossorigin
+          src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"
+        ></script>
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

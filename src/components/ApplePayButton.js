@@ -83,11 +83,12 @@ const ApplePayButton = () => {
   };
 
   return (
-    <button
+    <apple-pay-button
+      buttonstyle="black"
+      type="plain"
+      locale="en"
       onClick={handleApplePay}
-      className="apple-pay-button"
-    >
-    </button>
+    />
   );
 };
 
