@@ -78,11 +78,22 @@ export async function POST(request, response) {
         }
       );
 
-      const cardMetadata = await cardMetadataResponse.json();
-      console.error("Card Metadata Response:", JSON.stringify(cardMetadata, null, 2));
+      console.error("Card Metadata Response Status:", cardMetadataResponse.status);
+      
+      const cardMetadataText = await cardMetadataResponse.text();
+      console.error("Card Metadata Raw Response:", cardMetadataText);
+
+      if (cardMetadataText) {
+        try {
+          const cardMetadata = JSON.parse(cardMetadataText);
+          console.error("Card Metadata Parsed:", JSON.stringify(cardMetadata, null, 2));
+        } catch (parseError) {
+          console.error("Error parsing card metadata JSON:", parseError.message);
+        }
+      }
 
       if (!cardMetadataResponse.ok) {
-        console.error("Card Metadata Request Failed:", cardMetadata);
+        console.error("Card Metadata Request Failed with status:", cardMetadataResponse.status);
       }
     } catch (metadataError) {
       console.error("Error fetching card metadata:", metadataError);
