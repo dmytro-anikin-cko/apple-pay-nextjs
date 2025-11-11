@@ -58,6 +58,7 @@ export async function POST(request, response) {
 
     const ckoToken = tokenData.token;
     console.error("CKO Token:", ckoToken);
+    debugger;
 
     // Step 2: Use the CKO token to create a payment
     const paymentResponse = await fetch(
