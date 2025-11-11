@@ -58,7 +58,36 @@ export async function POST(request, response) {
 
     const ckoToken = tokenData.token;
     console.error("CKO Token:", ckoToken);
-    debugger;
+
+    // Check card metadata
+    try {
+      const cardMetadataResponse = await fetch(
+        "https://api.sandbox.checkout.com/metadata/card",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.PUBLIC_KEY}`,
+          },
+          body: JSON.stringify({
+            source: {
+              type: "token",
+              token: ckoToken,
+            },
+          }),
+        }
+      );
+
+      const cardMetadata = await cardMetadataResponse.json();
+      console.error("Card Metadata Response:", JSON.stringify(cardMetadata, null, 2));
+
+      if (!cardMetadataResponse.ok) {
+        console.error("Card Metadata Request Failed:", cardMetadata);
+      }
+    } catch (metadataError) {
+      console.error("Error fetching card metadata:", metadataError);
+      // Continue with payment even if metadata check fails
+    }
 
     // Step 2: Use the CKO token to create a payment
     const paymentResponse = await fetch(
