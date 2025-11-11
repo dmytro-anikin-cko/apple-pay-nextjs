@@ -52,6 +52,8 @@ const ApplePayButton = () => {
       // Handle payment authorization
       session.onpaymentauthorized = async (event) => {
         console.log('Payment authorized Event Data:', event);
+        console.log('Payment object:', event.payment);
+        console.log('Token object:', event.payment.token);
         const applePayToken = event.payment.token.paymentData;
         console.log("ApplePayToken:", applePayToken);
         
