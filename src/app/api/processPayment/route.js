@@ -67,7 +67,7 @@ export async function POST(request, response) {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.PUBLIC_KEY}`,
+            Authorization: `Bearer ${process.env.SECRET_KEY}`,
           },
           body: JSON.stringify({
             source: {
